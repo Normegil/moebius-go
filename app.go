@@ -2,11 +2,15 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/normegil/moebius-go/connector"
+	"github.com/normegil/moebius-go/connector/mangaeden"
 )
 
 func main() {
-	mangas, err := connector.LoadMangas("en")
+	var mangaEdenAPI mangaeden.API
+	listers := []connector.Lister{mangaEdenAPI}
+	mangas, err := connector.ListMangas(listers, "en")
 	if nil != err {
 		panic(err)
 	}

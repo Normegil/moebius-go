@@ -5,13 +5,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+
+	"github.com/normegil/moebius-go/models"
+	"github.com/normegil/moebius-go/utils"
 )
 
-// MangaAPI is the structure representing the response from MangaEden when loading the manga list.
-// It represents only the list of mangas
-type MangaAPI struct {
+type mangaResponse struct {
+	Manga []mangaAPI
+}
+
+type mangaAPI struct {
 	I  string   // ID
 	T  string   // Title
 	C  []string // Tags
@@ -25,13 +28,20 @@ type MangaAPI struct {
 	S int
 }
 
-type mangaResponse struct {
-	Manga []MangaAPI
+func (manga mangaAPI) format() models.Manga {
+	return models.Manga{
+		ID:     manga.I,
+		Title:  manga.T,
+		Tags:   manga.C,
+		Image:  manga.Im,
+		Alias:  manga.A,
+		Status: manga.S,
+	}
 }
 
-// LoadMangas is loading the manga list from MangaEden.
+// List is loading the manga list from MangaEden.
 // It accept a language parameter which should be "en"(English) or "it"(Italian). If the string is empty, it will default to english.
-func LoadMangas(language string) ([]MangaAPI, error) {
+func (API) List(fetcher utils.Fetcher, language string) ([]models.Manga, error) {
 	languageCode, err := getLanguageCode(language)
 	if nil != err {
 		return nil, err
@@ -39,17 +49,22 @@ func LoadMangas(language string) ([]MangaAPI, error) {
 
 	const mangaURL = "https://www.mangaeden.com/api/list/%d/"
 	url := fmt.Sprintf(mangaURL, languageCode)
-	resp, err := http.Get(url)
+	content, err := fetcher.Fetch(url)
 	if nil != err {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	mangaResp, err := parseResponse(resp)
+	var mangaResp mangaResponse
+	err = json.Unmarshal(content, &mangaResp)
 	if nil != err {
 		return nil, err
 	}
-	return mangaResp.Manga, nil
+
+	mangas := make([]models.Manga, len(mangaResp.Manga))
+	for index, manga := range mangaResp.Manga {
+		mangas[index] = manga.format()
+	}
+	return mangas, nil
 }
 
 func getLanguageCode(language string) (int, error) {
@@ -60,18 +75,4 @@ func getLanguageCode(language string) (int, error) {
 		return 1, nil
 	}
 	return -1, errors.New("Language not supported: " + language)
-}
-
-func parseResponse(resp *http.Response) (mangaResponse, error) {
-	content, err := ioutil.ReadAll(resp.Body)
-	if nil != err {
-		return mangaResponse{}, err
-	}
-
-	var mangaResp mangaResponse
-	err = json.Unmarshal(content, &mangaResp)
-	if nil != err {
-		return mangaResponse{}, err
-	}
-	return mangaResp, nil
 }
