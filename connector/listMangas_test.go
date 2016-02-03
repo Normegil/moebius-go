@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/normegil/moebius-go/cache"
 	"github.com/normegil/moebius-go/models"
 	"github.com/normegil/moebius-go/utils"
 )
@@ -69,7 +70,9 @@ var tests = []struct {
 
 func TestListMangas(t *testing.T) {
 	for _, test := range tests {
-		mangas, err := ListMangas(test.in, "en")
+		mangas, err := ListMangas(cache.NewMemoryCache(), test.in, ListMangasOptions{
+			Language: "en",
+		})
 		if test.expected.expectError && nil == err {
 			t.Fatalf(errorMsg, test.name, "An error was expected but none was received.", test.in, test.expected)
 		} else if !test.expected.expectError {
