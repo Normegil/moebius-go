@@ -6,16 +6,22 @@ import (
 	"io/ioutil"
 	"os"
 	"os/user"
+	"time"
 
 	"github.com/normegil/moebius-go/models"
+	"github.com/normegil/moebius-go/utils"
 )
 
 // FileCache is a cache manager that will manage cache throught different files in the file system
 type FileCache struct {
 	Path string
+	// Expiration is a duration after which the cache expire. If Expiration is 0, the cache will not expire.
+	Expiration            time.Duration
+	lastModificationTimer utils.LastModificationTimer
 }
 
 // NewFileCache creates a FileCache pointing to ".cache/" folder inside current user's home folder
+// This cache doesn't expire
 func NewFileCache() (*FileCache, error) {
 	usr, err := user.Current()
 	if err != nil {
@@ -51,10 +57,17 @@ func (cache *FileCache) Load(fileName string) ([]models.Manga, error) {
 	}
 
 	filePath := cache.Path + "/" + fileName + ".json"
+	if 0 != cache.Expiration {
+		err = manageExpiration(cache, filePath)
+		if nil != err {
+			return nil, err
+		}
+	}
+
 	jsonData, err := ioutil.ReadFile(filePath)
 	if nil != err {
 		if os.IsNotExist(err) {
-			return nil, DataNotFoundError{fileName}
+			return nil, DataNotFoundError{filePath}
 		}
 		return nil, err
 	}
@@ -70,4 +83,32 @@ func (cache *FileCache) checkSettings() error {
 	}
 
 	return nil
+}
+
+func manageExpiration(cache *FileCache, path string) error {
+	lastModifTime, err := getLastModificationTime(cache, path)
+	if nil != err {
+		if os.IsNotExist(err) {
+			return DataNotFoundError{path}
+		}
+		return err
+	}
+
+	now := time.Now()
+	validityTime := now.Add(-cache.Expiration)
+	if lastModifTime.Before(validityTime) || lastModifTime.After(now) {
+		return ExpiredError{path}
+	}
+	return nil
+}
+
+func getLastModificationTime(cache *FileCache, path string) (time.Time, error) {
+	if nil != cache.lastModificationTimer {
+		return cache.lastModificationTimer.LastModificationTime(path)
+	}
+	stats, err := os.Stat(path)
+	if nil != err {
+		return time.Time{}, err
+	}
+	return stats.ModTime(), nil
 }

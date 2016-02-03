@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/normegil/moebius-go/cache"
 	"github.com/normegil/moebius-go/connector"
@@ -12,6 +13,10 @@ func main() {
 	c, err := cache.NewFileCache()
 	if nil != err {
 		panic(err)
+	}
+	c = &cache.FileCache{
+		Path:       c.Path,
+		Expiration: 5 * 24 * time.Hour,
 	}
 
 	var mangaEdenAPI mangaeden.API

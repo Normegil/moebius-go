@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/normegil/moebius-go/models"
 )
@@ -66,13 +67,77 @@ func TestFileLoadInexistingData(t *testing.T) {
 	}
 	cache := &FileCache{Path: path}
 	fileName := "NotExisting"
+	filePath := path + "/" + fileName + ".json"
 	_, err = cache.Load(fileName)
 	derr, ok := err.(DataNotFoundError)
 	if !ok {
 		t.Fatalf("Error is not of requested type: %s", err)
 	}
-	if derr.ID != fileName {
+	if derr.ID != filePath {
 		t.Fatalf("DataNotFoundError doesn't contains right key.\n\tExpected: %s\n\tGot: %s", fileName, derr.ID)
+	}
+}
+
+func TestFileLoadIgnoreExpirationIfZeroValue(t *testing.T) {
+	path, err := ioutil.TempDir(tempDirRoot, tempDirPrefix)
+	if nil != err {
+		t.Fatal(err)
+	}
+	cache := &FileCache{
+		Path:                  path,
+		Expiration:            0,
+		lastModificationTimer: testLastModificationTimer{time.Time{}},
+	}
+	_, err = cache.Load("File")
+	if nil != err {
+		_, ok := err.(DataNotFoundError)
+		if !ok {
+			t.Fatalf("Only DataNotFoundError allowed: %s", err)
+		}
+	}
+}
+
+func TestFileLoadCheckExpirationIfSet(t *testing.T) {
+	path, err := ioutil.TempDir(tempDirRoot, tempDirPrefix)
+	if nil != err {
+		t.Fatal(err)
+	}
+	cache := &FileCache{
+		Path:                  path,
+		Expiration:            1 * time.Hour,
+		lastModificationTimer: testLastModificationTimer{time.Time{}},
+	}
+	_, err = cache.Load("File")
+
+	if nil == err {
+		t.Fatal("Error is nil")
+	}
+
+	_, ok := err.(ExpiredError)
+	if !ok {
+		t.Fatalf("Error is not of requested type: %s", err)
+	}
+}
+
+func TestFileLoadCheckExpirationInFuture(t *testing.T) {
+	path, err := ioutil.TempDir(tempDirRoot, tempDirPrefix)
+	if nil != err {
+		t.Fatal(err)
+	}
+	cache := &FileCache{
+		Path:                  path,
+		Expiration:            1 * time.Hour,
+		lastModificationTimer: testLastModificationTimer{time.Now().Add(1 * time.Hour)},
+	}
+	_, err = cache.Load("File")
+
+	if nil == err {
+		t.Fatal("Error is nil")
+	}
+
+	_, ok := err.(ExpiredError)
+	if !ok {
+		t.Fatalf("Error is not of requested type: %s", err)
 	}
 }
 
@@ -88,4 +153,12 @@ func createTestFile(folderPath string, mangas []models.Manga) (string, error) {
 	const fileMode = 0644
 	err = ioutil.WriteFile(filePath, []byte(jsonDatas), fileMode)
 	return fileName, err
+}
+
+type testLastModificationTimer struct {
+	ModificationDate time.Time
+}
+
+func (lastModifTimer testLastModificationTimer) LastModificationTime(path string) (time.Time, error) {
+	return lastModifTimer.ModificationDate, nil
 }

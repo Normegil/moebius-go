@@ -26,16 +26,17 @@ func ListMangas(cache cachePkg.Cache, listers []Lister, options ListMangasOption
 func listUsingCache(cache cachePkg.Cache, listers []Lister, language string) ([]models.Manga, error) {
 	mangas, err := cache.Load(listAllCacheID + language)
 	if nil != err {
-		_, ok := err.(cachePkg.DataNotFoundError)
-		if !ok {
+		switch err.(type) {
+		case cachePkg.DataNotFoundError, cachePkg.ExpiredError:
+			mangas, err := listUsingListers(listers, language)
+			if nil != err {
+				return nil, err
+			}
+			cache.Save(mangas, listAllCacheID+language)
+			return mangas, nil
+		default:
 			return nil, err
 		}
-		mangas, err := listUsingListers(listers, language)
-		if nil != err {
-			return nil, err
-		}
-		cache.Save(mangas, listAllCacheID+language)
-		return mangas, nil
 	}
 	return mangas, nil
 }
