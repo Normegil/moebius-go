@@ -29,13 +29,23 @@ type mangaAPI struct {
 }
 
 func (manga mangaAPI) format() models.Manga {
+	var status models.MangaStatus
+	switch manga.S {
+	case 0:
+		status = models.Suspended
+	case 1:
+		status = models.Ongoing
+	case 2:
+		status = models.Completed
+	}
+
 	return models.Manga{
 		ID:     manga.I,
 		Title:  manga.T,
 		Tags:   manga.C,
 		Image:  manga.Im,
 		Alias:  manga.A,
-		Status: manga.S,
+		Status: status,
 	}
 }
 
