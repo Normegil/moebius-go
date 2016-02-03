@@ -3,6 +3,7 @@ package cache
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"reflect"
 	"testing"
 
@@ -61,25 +62,29 @@ func TestFileSave(t *testing.T) {
 	filePath := cache.Path + "/" + fileName + ".json"
 	errorMsgImproved := errorMsg + "\n\t\tFilePath: %+v\n\t\tMangas: %+v"
 	if nil != err {
-		t.Fatalf(errorMsgImproved, testName, err, fileName, mangas)
+		fatalf(filePath, t, errorMsgImproved, testName, err, fileName, mangas)
 	}
 
 	jsonDatas, err := ioutil.ReadFile(filePath)
 	if nil != err {
-		t.Fatalf(errorMsgImproved, testName, err, fileName, mangas)
+		fatalf(filePath, t, errorMsgImproved, testName, err, fileName, mangas)
 	}
 
 	var mangasLoaded []models.Manga
 	err = json.Unmarshal(jsonDatas, &mangasLoaded)
 	if nil != err {
-		t.Fatalf(errorMsgImproved, testName, err, fileName, mangas)
+		fatalf(filePath, t, errorMsgImproved, testName, err, fileName, mangas)
 	}
 
 	if !reflect.DeepEqual(mangas, mangasLoaded) {
-		t.Fatalf(errorMsgImproved, testName, string(jsonDatas), fileName, mangas)
+		fatalf(filePath, t, errorMsgImproved, testName, string(jsonDatas), fileName, mangas)
 	}
 }
 
-func fatal(t *testing.T, filePath, format string, v ...interface{}) {
-	t.Fatalf(format, v...)
+func fatalf(path string, t *testing.T, format string, args ...interface{}) {
+	err := os.Remove(path)
+	if nil != err {
+		t.Fatalf("ERROR WHILE REMOVING: %s", path)
+	}
+	t.Fatalf(format, args...)
 }

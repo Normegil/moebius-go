@@ -52,11 +52,11 @@ func TestFileLoad(t *testing.T) {
 
 	loadedMangas, err := cache.Load(fileName)
 	if nil != err {
-		t.Fatalf(errorMsg, err, filePath, mangas)
+		fatalf(filePath, t, errorMsg, err, filePath, mangas)
 	}
 
 	if !reflect.DeepEqual(loadedMangas, mangas) {
-		t.Fatalf("%s\n\tExpected: %+v\n\tGot: %+v", "Loaded Mangas and expected mangas not corresponding", mangas, loadedMangas)
+		fatalf(filePath, t, "%s\n\tExpected: %+v\n\tGot: %+v", "Loaded Mangas and expected mangas not corresponding", mangas, loadedMangas)
 	}
 }
 
@@ -71,10 +71,10 @@ func TestFileLoadInexistingData(t *testing.T) {
 	_, err = cache.Load(fileName)
 	derr, ok := err.(DataNotFoundError)
 	if !ok {
-		t.Fatalf("Error is not of requested type: %s", err)
+		fatalf(filePath, t, "Error is not of requested type: %s", err)
 	}
 	if derr.ID != filePath {
-		t.Fatalf("DataNotFoundError doesn't contains right key.\n\tExpected: %s\n\tGot: %s", fileName, derr.ID)
+		fatalf(filePath, t, "DataNotFoundError doesn't contains right key.\n\tExpected: %s\n\tGot: %s", fileName, derr.ID)
 	}
 }
 
