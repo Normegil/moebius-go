@@ -1,15 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/normegil/moebius-go/cache"
 	"github.com/normegil/moebius-go/connector"
 	"github.com/normegil/moebius-go/connector/mangaeden"
+	"github.com/normegil/moebius-go/views"
+	"github.com/normegil/moebius-go/views/terminal/raw"
 )
 
 func main() {
+	raw.Launch(views.ViewInputs{
+		Cache:   getCache(),
+		Listers: getListers(),
+	})
+}
+
+func getListers() []connector.Lister {
+	var mangaEdenAPI mangaeden.API
+	listers := []connector.Lister{mangaEdenAPI}
+	return listers
+}
+
+func getCache() cache.Cache {
 	c, err := cache.NewFileCache()
 	if nil != err {
 		panic(err)
@@ -18,18 +32,5 @@ func main() {
 		Path:       c.Path,
 		Expiration: 5 * 24 * time.Hour,
 	}
-
-	var mangaEdenAPI mangaeden.API
-	listers := []connector.Lister{mangaEdenAPI}
-
-	mangas, err := connector.ListMangas(c, listers, connector.ListMangasOptions{
-		Language: "en",
-	})
-	if nil != err {
-		panic(err)
-	}
-
-	for _, manga := range mangas {
-		fmt.Println(manga.Title)
-	}
+	return c
 }

@@ -11,20 +11,21 @@ const listAllCacheID = "MoebiusListOfAllMangas"
 // ListMangasOptions gather inputs for ListMangas method. Doesn't list dependancies
 type ListMangasOptions struct {
 	Language string
-	useCache bool
+	UseCache bool
 }
 
 // ListMangas call all different APIs and return a list of mangas from different origins.
 // Language can be "en" or "it". If it's empty, it will be replaced by "en".
 func ListMangas(cache cachePkg.Cache, listers []Lister, options ListMangasOptions) ([]models.Manga, error) {
-	if options.useCache {
+	if options.UseCache {
 		return listUsingCache(cache, listers, options.Language)
 	}
 	return listUsingListers(listers, options.Language)
 }
 
 func listUsingCache(cache cachePkg.Cache, listers []Lister, language string) ([]models.Manga, error) {
-	mangas, err := cache.Load(listAllCacheID + language)
+	cacheName := listAllCacheID + "-" + language
+	mangas, err := cache.Load(cacheName)
 	if nil != err {
 		switch err.(type) {
 		case cachePkg.DataNotFoundError, cachePkg.ExpiredError:
@@ -32,7 +33,7 @@ func listUsingCache(cache cachePkg.Cache, listers []Lister, language string) ([]
 			if nil != err {
 				return nil, err
 			}
-			cache.Save(mangas, listAllCacheID+language)
+			cache.Save(mangas, cacheName)
 			return mangas, nil
 		default:
 			return nil, err
