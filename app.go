@@ -7,11 +7,11 @@ import (
 	"github.com/normegil/moebius-go/connector"
 	"github.com/normegil/moebius-go/connector/mangaeden"
 	"github.com/normegil/moebius-go/views"
-	"github.com/normegil/moebius-go/views/terminal/raw"
+	"github.com/normegil/moebius-go/views/terminal/gui"
 )
 
 func main() {
-	raw.Launch(views.ViewInputs{
+	gui.Launch(views.ViewInputs{
 		Cache:   getCache(),
 		Listers: getListers(),
 	})
