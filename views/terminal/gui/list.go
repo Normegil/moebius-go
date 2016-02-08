@@ -39,11 +39,11 @@ func (list *lister) init(args views.ViewInputs) error {
 	return nil
 }
 
-func (list *lister) draw(start, end int) error {
-	w, _ := termbox.Size()
-
+func (list *lister) draw(start int) error {
+	w, h := termbox.Size()
 	row := start
 	col := 0
+	endOfList := h - 2
 	for _, toPrint := range list.content {
 		attr := attributes{foreground: termbox.ColorWhite}
 		if toPrint == list.selected {
@@ -55,10 +55,19 @@ func (list *lister) draw(start, end int) error {
 		if col+colSize >= w {
 			col = 0
 			row++
-			if row >= end {
+			if row >= endOfList {
 				break
 			}
 		}
 	}
+	list.footer()
 	return nil
+}
+
+func (list *lister) footer() {
+	w, h := termbox.Size()
+	fill(coordinates{0, h - 1}, sizes{w, 1}, attributes{
+		foreground: termbox.ColorBlack,
+		background: termbox.ColorCyan,
+	})
 }

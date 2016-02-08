@@ -27,9 +27,8 @@ func print(start coordinates, attr attributes, msg string) {
 
 func fill(start coordinates, s sizes, attr attributes) {
 	blockWidth := s.width - start.x
-	blockHeight := s.height - start.y
 	for i := 0; i < blockWidth; i++ {
-		for j := 0; j < blockHeight; j++ {
+		for j := 0; j < s.height; j++ {
 			termbox.SetCell(start.x+i, start.y+j, ' ', attr.foreground, attr.background)
 		}
 	}
