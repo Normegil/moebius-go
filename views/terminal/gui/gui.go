@@ -36,6 +36,11 @@ eventLoop:
 			switch ev.Key {
 			case termbox.KeyCtrlC, termbox.KeyEsc:
 				break eventLoop
+			default:
+				needRedraw := lister.React(ev)
+				if needRedraw {
+					redraw(lister)
+				}
 			}
 		case termbox.EventResize:
 			redraw(lister)
