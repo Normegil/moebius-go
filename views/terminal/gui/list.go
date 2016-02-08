@@ -39,10 +39,10 @@ func (list *lister) init(args views.ViewInputs) error {
 	return nil
 }
 
-func (list *lister) draw() error {
+func (list *lister) draw(start, end int) error {
 	w, _ := termbox.Size()
 
-	row := 2
+	row := start
 	col := 0
 	for _, toPrint := range list.content {
 		attr := attributes{foreground: termbox.ColorWhite}
@@ -55,6 +55,9 @@ func (list *lister) draw() error {
 		if col+colSize >= w {
 			col = 0
 			row++
+			if row >= end {
+				break
+			}
 		}
 	}
 	return nil
