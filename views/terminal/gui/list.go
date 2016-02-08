@@ -17,7 +17,7 @@ const overflowPrintSize = printSize - 3
 
 type lister struct {
 	content  []string
-	selected string
+	selected int
 }
 
 func (list *lister) init(args views.ViewInputs) error {
@@ -37,7 +37,7 @@ func (list *lister) init(args views.ViewInputs) error {
 		list.content[i] = toPrint
 	}
 	sort.Strings(list.content)
-	list.selected = list.content[0]
+	list.selected = 163
 	return nil
 }
 
@@ -52,9 +52,9 @@ func (list *lister) draw(start int) error {
 
 	col := 0
 	endOfList := h - 2
-	for _, toPrint := range list.content {
+	for i, toPrint := range list.content {
 		attr := attributes{foreground: termbox.ColorWhite}
-		if toPrint == list.selected {
+		if i == list.selected {
 			attr = attributes{foreground: termbox.AttrReverse, background: termbox.AttrReverse}
 		}
 		print(coordinates{col + marginLeft, row}, attr, toPrint)
@@ -68,11 +68,15 @@ func (list *lister) draw(start int) error {
 			}
 		}
 	}
-	list.footer()
+
+	nbCol := w / colSize
+	nbRow := endOfList - start
+	elementsDisplayed := int(math.Min(float64(nbCol*nbRow), float64(len(list.content))))
+	list.footer(elementsDisplayed, len(list.content))
 	return nil
 }
 
-func (list *lister) footer() {
+func (list *lister) footer(displayed, total int) {
 	w, h := termbox.Size()
 	defaultFooterAttributes := attributes{
 		foreground: termbox.ColorBlack,
@@ -80,9 +84,15 @@ func (list *lister) footer() {
 	}
 	fill(coordinates{0, h - 1}, sizes{w, 1}, defaultFooterAttributes)
 
-	print(coordinates{5, h - 1}, defaultFooterAttributes, fmt.Sprintf("Pages: %d/%d", 5, 100))
+	elementSelectedStartingAt1 := list.selected + 1
+	pageNb := elementSelectedStartingAt1 / displayed
+	if elementSelectedStartingAt1%displayed != 0 {
+		pageNb++
+	}
+	nbPage := total / displayed
+	print(coordinates{5, h - 1}, defaultFooterAttributes, fmt.Sprintf("Pages: %d/%d", pageNb, nbPage))
 	mangasCountFormat := "Mangas: %d"
 	sizeOfMessage := float64(len(mangasCountFormat) + 5)
 	marginRight := int(math.Min(math.Max(sizeOfMessage, float64(w/8)), float64(colSize)))
-	print(coordinates{w - marginRight, h - 1}, defaultFooterAttributes, fmt.Sprintf(mangasCountFormat, len(list.content)))
+	print(coordinates{w - marginRight, h - 1}, defaultFooterAttributes, fmt.Sprintf(mangasCountFormat, total))
 }
