@@ -7,7 +7,7 @@ func redraw(toDraw body) error {
 	termbox.Clear(coldef, coldef)
 
 	drawHeader()
-	toDraw.draw(2)
+	toDraw.Draw(2)
 
 	err := termbox.Flush()
 	return err

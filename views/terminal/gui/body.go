@@ -1,5 +1,5 @@
 package gui
 
 type body interface {
-	draw(start int) error
+	Draw(start int) error
 }

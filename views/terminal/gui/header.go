@@ -1,15 +1,18 @@
 package gui
 
-import "github.com/nsf/termbox-go"
+import (
+	"github.com/normegil/moebius-go/views/terminal/gui/utils"
+	termbox "github.com/nsf/termbox-go"
+)
 
 func drawHeader() {
 	w, _ := termbox.Size()
-	fill(coordinates{0, 0}, sizes{w, 1}, attributes{
-		foreground: termbox.ColorBlack,
-		background: termbox.ColorCyan,
+	utils.Fill(utils.Coordinates{0, 0}, utils.Size{w, 1}, utils.Attributes{
+		Foreground: termbox.ColorBlack,
+		Background: termbox.ColorCyan,
 	})
-	print(coordinates{headerOpts.titlePt, 0}, attributes{
-		foreground: termbox.ColorBlack | termbox.AttrBold,
-		background: termbox.ColorCyan,
+	utils.Print(utils.Coordinates{headerOpts.titlePt, 0}, utils.Attributes{
+		Foreground: termbox.ColorBlack | termbox.AttrBold,
+		Background: termbox.ColorCyan,
 	}, "Moebius-go")
 }

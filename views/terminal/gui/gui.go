@@ -2,6 +2,7 @@ package gui
 
 import (
 	"github.com/normegil/moebius-go/views"
+	"github.com/normegil/moebius-go/views/terminal/gui/list"
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -20,8 +21,8 @@ func Launch(args views.ViewInputs) {
 	defer termbox.Close()
 	termbox.SetInputMode(termbox.InputEsc)
 
-	listerBody := &lister{}
-	listerBody.init(args)
+	listerBody := &list.Lister{}
+	listerBody.Init(args)
 
 	redraw(listerBody)
 

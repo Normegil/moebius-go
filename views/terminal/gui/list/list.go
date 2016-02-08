@@ -1,4 +1,4 @@
-package gui
+package list
 
 import (
 	"fmt"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/normegil/moebius-go/connector"
 	"github.com/normegil/moebius-go/views"
+	"github.com/normegil/moebius-go/views/terminal/gui/utils"
 	termbox "github.com/nsf/termbox-go"
 )
 
@@ -15,12 +16,14 @@ const printSize = 30
 const marginLeft = (colSize - printSize) / 2
 const overflowPrintSize = printSize - 3
 
-type lister struct {
+// Lister manage the display of a list of manga
+type Lister struct {
 	content  []string
 	selected int
 }
 
-func (list *lister) init(args views.ViewInputs) error {
+// Init initialize and load needed data into Lister
+func (list *Lister) Init(args views.ViewInputs) error {
 	mangas, err := connector.ListMangas(args.Cache, args.Listers, connector.ListMangasOptions{
 		UseCache: true,
 		Language: "en",
@@ -41,23 +44,29 @@ func (list *lister) init(args views.ViewInputs) error {
 	return nil
 }
 
-func (list *lister) draw(start int) error {
+// Draw the list of mangas
+func (list *Lister) Draw(start int) error {
 	w, h := termbox.Size()
 
 	row := start
 	if colSize > w {
-		row = printWrap(coordinates{0, start}, attributes{foreground: termbox.ColorRed | termbox.AttrBold}, "Application won't work nicely under 40 character-wide terminal", 2)
+		row = utils.PrintWrap(utils.Coordinates{X: 0, Y: start}, utils.Attributes{
+			Foreground: termbox.ColorRed | termbox.AttrBold,
+		}, "Application won't work nicely under 40 character-wide terminal", 2)
 		row++ // Leave empty space
 	}
 
 	col := 0
 	endOfList := h - 2
 	for i, toPrint := range list.content {
-		attr := attributes{foreground: termbox.ColorWhite}
+		attr := utils.Attributes{Foreground: termbox.ColorWhite}
 		if i == list.selected {
-			attr = attributes{foreground: termbox.AttrReverse, background: termbox.AttrReverse}
+			attr = utils.Attributes{
+				Foreground: termbox.AttrReverse,
+				Background: termbox.AttrReverse,
+			}
 		}
-		print(coordinates{col + marginLeft, row}, attr, toPrint)
+		utils.Print(utils.Coordinates{X: col + marginLeft, Y: row}, attr, toPrint)
 
 		col += colSize
 		if col+colSize >= w {
@@ -72,17 +81,18 @@ func (list *lister) draw(start int) error {
 	nbCol := w / colSize
 	nbRow := endOfList - start
 	elementsDisplayed := int(math.Min(float64(nbCol*nbRow), float64(len(list.content))))
-	list.footer(elementsDisplayed, len(list.content))
+	list.Footer(elementsDisplayed, len(list.content))
 	return nil
 }
 
-func (list *lister) footer(displayed, total int) {
+//Footer manage the display of the footer under the list of mangas
+func (list *Lister) Footer(displayed, total int) {
 	w, h := termbox.Size()
-	defaultFooterAttributes := attributes{
-		foreground: termbox.ColorBlack,
-		background: termbox.ColorCyan,
+	defaultFooterAttributes := utils.Attributes{
+		Foreground: termbox.ColorBlack,
+		Background: termbox.ColorCyan,
 	}
-	fill(coordinates{0, h - 1}, sizes{w, 1}, defaultFooterAttributes)
+	utils.Fill(utils.Coordinates{X: 0, Y: h - 1}, utils.Size{Width: w, Height: 1}, defaultFooterAttributes)
 
 	elementSelectedStartingAt1 := list.selected + 1
 	pageNb := elementSelectedStartingAt1 / displayed
@@ -90,9 +100,9 @@ func (list *lister) footer(displayed, total int) {
 		pageNb++
 	}
 	nbPage := total / displayed
-	print(coordinates{5, h - 1}, defaultFooterAttributes, fmt.Sprintf("Pages: %d/%d", pageNb, nbPage))
+	utils.Print(utils.Coordinates{X: 5, Y: h - 1}, defaultFooterAttributes, fmt.Sprintf("Pages: %d/%d", pageNb, nbPage))
 	mangasCountFormat := "Mangas: %d"
 	sizeOfMessage := float64(len(mangasCountFormat) + 5)
 	marginRight := int(math.Min(math.Max(sizeOfMessage, float64(w/8)), float64(colSize)))
-	print(coordinates{w - marginRight, h - 1}, defaultFooterAttributes, fmt.Sprintf(mangasCountFormat, total))
+	utils.Print(utils.Coordinates{X: w - marginRight, Y: h - 1}, defaultFooterAttributes, fmt.Sprintf(mangasCountFormat, total))
 }
