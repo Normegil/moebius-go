@@ -45,7 +45,11 @@ func (list *lister) draw() error {
 	row := 2
 	col := 0
 	for _, toPrint := range list.content {
-		print(coordinates{col + marginLeft, row}, attributes{foreground: termbox.ColorWhite}, toPrint)
+		attr := attributes{foreground: termbox.ColorWhite}
+		if toPrint == list.selected {
+			attr = attributes{foreground: termbox.AttrReverse, background: termbox.AttrReverse}
+		}
+		print(coordinates{col + marginLeft, row}, attr, toPrint)
 
 		col += colSize
 		if col+colSize >= w {
