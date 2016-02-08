@@ -21,10 +21,13 @@ func Launch(args views.ViewInputs) {
 	defer termbox.Close()
 	termbox.SetInputMode(termbox.InputEsc)
 
-	listerBody := &list.Lister{}
-	listerBody.Init(args)
+	lister := &list.Lister{}
+	err = lister.Init(args)
+	if nil != err {
+		panic(err)
+	}
 
-	redraw(listerBody)
+	redraw(lister)
 
 eventLoop:
 	for {
@@ -35,7 +38,7 @@ eventLoop:
 				break eventLoop
 			}
 		case termbox.EventResize:
-			redraw(listerBody)
+			redraw(lister)
 		case termbox.EventInterrupt:
 			break eventLoop
 		case termbox.EventError:
