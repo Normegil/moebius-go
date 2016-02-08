@@ -25,6 +25,23 @@ func print(start coordinates, attr attributes, msg string) {
 	}
 }
 
+func printWrap(start coordinates, attr attributes, msg string, margin int) int {
+	w, _ := termbox.Size()
+	x := start.x + margin
+	y := start.y
+	for _, c := range msg {
+		termbox.SetCell(x, y, c, attr.foreground, attr.background)
+		x++
+
+		if x >= w-margin {
+			y++
+			x = start.x + margin
+		}
+	}
+	y++
+	return y
+}
+
 func fill(start coordinates, s sizes, attr attributes) {
 	blockWidth := s.width - start.x
 	for i := 0; i < blockWidth; i++ {
