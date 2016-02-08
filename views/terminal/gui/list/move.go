@@ -21,7 +21,7 @@ func (lister *Lister) MoveDown() bool {
 	w, _ := termbox.Size()
 	numberOfElementsByColumn := w / colSize
 	newIndex := lister.selected + numberOfElementsByColumn
-	if 0 > newIndex {
+	if len(lister.content) < newIndex {
 		return false
 	}
 	lister.selected = newIndex
