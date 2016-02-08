@@ -21,3 +21,10 @@ type Manga struct {
 	Alias  string
 	Status MangaStatus
 }
+
+// ByTitle compare mangas by their titles for sorting purpose
+type ByTitle []Manga
+
+func (mangas ByTitle) Len() int           { return len(mangas) }
+func (mangas ByTitle) Swap(i, j int)      { mangas[i], mangas[j] = mangas[j], mangas[i] }
+func (mangas ByTitle) Less(i, j int) bool { return mangas[i].Title < mangas[j].Title }
