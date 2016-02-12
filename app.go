@@ -11,10 +11,13 @@ import (
 )
 
 func main() {
-	gui.Launch(views.ViewInputs{
+	err := gui.Launch(views.ViewInputs{
 		Cache:   getCache(),
 		Listers: getListers(),
 	})
+	if nil != err {
+		panic(err)
+	}
 }
 
 func getListers() []connector.Lister {

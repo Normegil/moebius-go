@@ -7,6 +7,7 @@ import (
 	"github.com/normegil/moebius-go/connector"
 	"github.com/normegil/moebius-go/models"
 	"github.com/normegil/moebius-go/views"
+	"github.com/normegil/moebius-go/views/terminal/gui/list/page"
 	"github.com/normegil/moebius-go/views/terminal/gui/utils"
 	"github.com/nsf/termbox-go"
 )
@@ -20,6 +21,7 @@ const overflowPrintSize = printSize - 3
 type Lister struct {
 	content  []models.Manga
 	selected int
+	goTo     *page.GoTo
 }
 
 // Init initialize and load needed data into Lister

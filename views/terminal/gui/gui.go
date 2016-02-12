@@ -13,10 +13,10 @@ var headerOpts = struct {
 }
 
 // Launch will launch the application and print a nice view of the application in terminal
-func Launch(args views.ViewInputs) {
+func Launch(args views.ViewInputs) error {
 	err := termbox.Init()
 	if nil != err {
-		panic(err)
+		return err
 	}
 	defer termbox.Close()
 	termbox.SetInputMode(termbox.InputEsc)
@@ -24,7 +24,7 @@ func Launch(args views.ViewInputs) {
 	lister := &list.Lister{}
 	err = lister.Init(args)
 	if nil != err {
-		panic(err)
+		return err
 	}
 
 	redraw(lister)
@@ -37,9 +37,13 @@ eventLoop:
 			case termbox.KeyCtrlC, termbox.KeyEsc:
 				break eventLoop
 			default:
-				needRedraw := lister.React(ev)
-				if needRedraw {
-					redraw(lister)
+				needRedraw, treated := lister.React(ev)
+				if treated {
+					if needRedraw {
+						redraw(lister)
+					}
+				} else if ev.Key == termbox.KeyEsc {
+					break eventLoop
 				}
 			}
 		case termbox.EventResize:
@@ -47,7 +51,8 @@ eventLoop:
 		case termbox.EventInterrupt:
 			break eventLoop
 		case termbox.EventError:
-			panic(ev.Err)
+			return ev.Err
 		}
 	}
+	return nil
 }

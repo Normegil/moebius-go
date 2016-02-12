@@ -8,7 +8,7 @@ import (
 )
 
 // Draw the list of mangas
-func (list *Lister) Draw(start int) error {
+func (lister *Lister) Draw(start int) error {
 	w, h := termbox.Size()
 
 	row := start
@@ -18,14 +18,14 @@ func (list *Lister) Draw(start int) error {
 
 	nbCol := w / colSize
 	nbRow := endRow - row
-	nbElements := int(math.Max(1, math.Min(float64(nbCol*nbRow), float64(len(list.content)))))
-	pageNb := (list.selected) / nbElements
+	nbElements := int(math.Max(1, math.Min(float64(nbCol*nbRow), float64(len(lister.content)))))
+	pageNb := (lister.selected) / nbElements
 
 	startIndex := pageNb * nbElements
 	endIndex := (pageNb + 1) * nbElements
-	for i, manga := range list.content[startIndex:endIndex] {
+	for i, manga := range lister.content[startIndex:endIndex] {
 		attr := utils.Attributes{Foreground: termbox.ColorWhite}
-		if startIndex+i == list.selected {
+		if startIndex+i == lister.selected {
 			attr = utils.Attributes{
 				Foreground: termbox.AttrReverse,
 				Background: termbox.AttrReverse,
@@ -43,6 +43,15 @@ func (list *Lister) Draw(start int) error {
 		}
 	}
 
-	list.Footer(nbElements, len(list.content))
+	lister.Footer(nbElements, len(lister.content))
+	return drawPopups(lister)
+}
+
+func drawPopups(lister *Lister) error {
+
+	if nil != lister.goTo && lister.goTo.Enabled() {
+		lister.goTo.Draw()
+	}
+
 	return nil
 }
