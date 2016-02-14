@@ -8,6 +8,7 @@ import (
 	"github.com/normegil/moebius-go/models"
 	"github.com/normegil/moebius-go/views"
 	"github.com/normegil/moebius-go/views/terminal/gui/utils"
+	termbox "github.com/nsf/termbox-go"
 )
 
 const colSize = 40
