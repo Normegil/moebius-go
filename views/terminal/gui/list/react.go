@@ -19,6 +19,10 @@ func (list *Lister) React(ev termbox.Event) (bool, bool) {
 		return list.MoveStart(), true
 	case termbox.KeyEnd:
 		return list.MoveEnd(), true
+	case termbox.KeyPgup:
+		return list.MovePageUp(), true
+	case termbox.KeyPgdn:
+		return list.MovePageDown(), true
 	}
 	return false, false
 }
