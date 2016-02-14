@@ -5,7 +5,7 @@ import (
 	"math"
 
 	"github.com/normegil/moebius-go/views/terminal/gui/utils"
-	"github.com/nsf/termbox-go"
+	termbox "github.com/nsf/termbox-go"
 )
 
 //Footer manage the display of the footer under the list of mangas
@@ -23,6 +23,9 @@ func (list *Lister) Footer(displayed, total int) {
 		pageNb++
 	}
 	nbPage := total / displayed
+	if total%displayed != 0 {
+		nbPage++
+	}
 	utils.Print(utils.Coordinates{X: 5, Y: h - 1}, defaultFooterAttributes, fmt.Sprintf("Pages: %d/%d", pageNb, nbPage))
 	mangasCountFormat := "Mangas: %d"
 	sizeOfMessage := float64(len(mangasCountFormat) + 5)

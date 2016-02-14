@@ -18,11 +18,13 @@ func (lister *Lister) Draw(start int) error {
 
 	nbCol := w / colSize
 	nbRow := endRow - row
-	nbElements := int(math.Max(1, math.Min(float64(nbCol*nbRow), float64(len(lister.content)))))
+	contentSize := len(lister.content)
+	nbElements := int(math.Max(1, math.Min(float64(nbCol*nbRow), float64(contentSize))))
 	pageNb := (lister.selected) / nbElements
 
 	startIndex := pageNb * nbElements
-	endIndex := (pageNb + 1) * nbElements
+	calculatedEndIndex := (pageNb + 1) * nbElements
+	endIndex := int(math.Min(float64(contentSize), float64(calculatedEndIndex)))
 	for i, manga := range lister.content[startIndex:endIndex] {
 		attr := utils.Attributes{Foreground: termbox.ColorWhite}
 		if startIndex+i == lister.selected {

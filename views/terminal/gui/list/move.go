@@ -27,7 +27,7 @@ func (lister *Lister) MoveDown() bool {
 	w, _ := termbox.Size()
 	numberOfElementsByColumn := w / colSize
 	newIndex := lister.selected + numberOfElementsByColumn
-	if len(lister.content) < newIndex {
+	if len(lister.content)-1 < newIndex {
 		log.Debug("Already at lowest row")
 		return false
 	}
@@ -62,5 +62,29 @@ func (lister *Lister) MoveRight() bool {
 		return false
 	}
 	lister.selected++
+	return true
+}
+
+// MoveStart move the cusor at the start of the displayed list
+func (lister *Lister) MoveStart() bool {
+	if 0 == lister.selected {
+		return false
+	}
+	log.Debug("Moving at start of the content")
+	lister.selected = 0
+	return true
+}
+
+// MoveEnd move the cusor at the end of the displayed list
+func (lister *Lister) MoveEnd() bool {
+	nbElements := len(lister.content)
+	if nbElements-1 == lister.selected {
+		return false
+	}
+	lister.selected = nbElements - 1
+	log.WithFields(log.Fields{
+		"content size":    nbElements,
+		"cursor position": lister.selected,
+	}).Debug("Moving at end of the content")
 	return true
 }
