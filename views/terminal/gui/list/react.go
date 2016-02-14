@@ -2,7 +2,6 @@ package list
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/normegil/moebius-go/views/terminal/gui/list/page"
 	termbox "github.com/nsf/termbox-go"
 )
 
