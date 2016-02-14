@@ -1,6 +1,7 @@
 package gui
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/normegil/moebius-go/views"
 	"github.com/normegil/moebius-go/views/terminal/gui/list"
 	termbox "github.com/nsf/termbox-go"
@@ -27,28 +28,41 @@ func Launch(args views.ViewInputs) error {
 		return err
 	}
 
-	redraw(lister)
+	err = redraw(lister)
+	if nil != err {
+		return err
+	}
 
 eventLoop:
 	for {
 		switch ev := termbox.PollEvent(); ev.Type {
 		case termbox.EventKey:
 			switch ev.Key {
-			case termbox.KeyCtrlC, termbox.KeyEsc:
+			case termbox.KeyCtrlC:
+				log.Info("Exiting application (User quit)")
 				break eventLoop
 			default:
 				needRedraw, treated := lister.React(ev)
 				if treated {
 					if needRedraw {
-						redraw(lister)
+						err = redraw(lister)
+						if nil != err {
+							return err
+						}
 					}
 				} else if ev.Key == termbox.KeyEsc {
+					log.Info("Exiting application (User quit)")
 					break eventLoop
 				}
 			}
 		case termbox.EventResize:
-			redraw(lister)
+			log.Debug("Redrawing GUI (Terminal resized)")
+			err = redraw(lister)
+			if nil != err {
+				return err
+			}
 		case termbox.EventInterrupt:
+			log.Info("Interrupting application (SIGINT received))")
 			break eventLoop
 		case termbox.EventError:
 			return ev.Err

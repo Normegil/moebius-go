@@ -1,8 +1,9 @@
 package list
 
 import (
+	log "github.com/Sirupsen/logrus"
 	"github.com/normegil/moebius-go/views/terminal/gui/list/page"
-	"github.com/nsf/termbox-go"
+	termbox "github.com/nsf/termbox-go"
 )
 
 // React listen for keyboard events and react accordingly
@@ -34,7 +35,9 @@ func (lister *Lister) React(ev termbox.Event) (bool, bool) {
 
 func openGoToPopup(lister *Lister) {
 	if nil == lister.goTo {
+		log.Debug("Init GoTo popup")
 		lister.goTo = &page.GoTo{}
 	}
+	log.Info("Open GoTo popup")
 	lister.goTo.Open("1")
 }

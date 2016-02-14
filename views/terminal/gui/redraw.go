@@ -1,14 +1,28 @@
 package gui
 
-import termbox "github.com/nsf/termbox-go"
+import (
+	log "github.com/Sirupsen/logrus"
+	termbox "github.com/nsf/termbox-go"
+)
 
 func redraw(toDraw body) error {
 	const coldef = termbox.ColorDefault
-	termbox.Clear(coldef, coldef)
+	err := termbox.Clear(coldef, coldef)
+	if nil != err {
+		log.WithField("error", err).Warn("Error while clearing terminal")
+		return err
+	}
 
 	drawHeader()
-	toDraw.Draw(2)
+	err = toDraw.Draw(2)
+	if nil != err {
+		log.WithField("error", err).Warn("Error while drawing application")
+		return err
+	}
 
-	err := termbox.Flush()
+	err = termbox.Flush()
+	if nil != err {
+		log.WithField("error", err).Warn("Error while flushing application GUI")
+	}
 	return err
 }

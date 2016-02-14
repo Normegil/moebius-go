@@ -4,7 +4,7 @@ import (
 	"math"
 
 	"github.com/normegil/moebius-go/views/terminal/gui/utils"
-	"github.com/nsf/termbox-go"
+	termbox "github.com/nsf/termbox-go"
 )
 
 // Draw the list of mangas
@@ -48,7 +48,6 @@ func (lister *Lister) Draw(start int) error {
 }
 
 func drawPopups(lister *Lister) error {
-
 	if nil != lister.goTo && lister.goTo.Enabled() {
 		lister.goTo.Draw()
 	}
