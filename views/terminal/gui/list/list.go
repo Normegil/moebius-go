@@ -7,6 +7,7 @@ import (
 	"github.com/normegil/moebius-go/connector"
 	"github.com/normegil/moebius-go/models"
 	"github.com/normegil/moebius-go/views"
+	"github.com/normegil/moebius-go/views/terminal/gui/list/search"
 	"github.com/normegil/moebius-go/views/terminal/gui/utils"
 	termbox "github.com/nsf/termbox-go"
 )
@@ -18,8 +19,9 @@ const overflowPrintSize = printSize - 3
 
 // Lister manage the display of a list of manga
 type Lister struct {
-	content  []models.Manga
-	selected int
+	content     []models.Manga
+	selected    int
+	searchField search.Search
 }
 
 // Init initialize and load needed data into Lister
@@ -36,5 +38,6 @@ func (list *Lister) Init(args views.ViewInputs) error {
 	copy(list.content, mangas)
 	sort.Sort(models.ByTitle(list.content))
 	list.selected = 0
+	list.searchField = search.Search{}
 	return nil
 }
