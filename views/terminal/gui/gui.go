@@ -3,7 +3,7 @@ package gui
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/normegil/moebius-go/views"
-	"github.com/normegil/moebius-go/views/terminal/gui/list"
+	"github.com/normegil/moebius-go/views/terminal/gui/selector"
 	termbox "github.com/nsf/termbox-go"
 )
 
