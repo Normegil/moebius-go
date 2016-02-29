@@ -4,8 +4,7 @@ import termbox "github.com/nsf/termbox-go"
 
 // React listen for keyboard events and react accordingly
 // Return a boolean indicating the need to redraw and a boolean indicating if the function has reacted to the event.
-func (list *Lister) React(ev termbox.Event) (bool, bool) {
-
+func (list *List) React(ev termbox.Event) (bool, bool) {
 	switch ev.Key {
 	case termbox.KeyArrowUp:
 		return list.MoveUp(), true

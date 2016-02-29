@@ -5,7 +5,8 @@ import (
 	"os/user"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
+	"github.com/normegil/moebius-go/log"
 
 	"github.com/normegil/moebius-go/cache"
 	"github.com/normegil/moebius-go/connector"
@@ -18,9 +19,11 @@ var logFile *os.File
 
 func init() {
 	logFile := initLogFile()
-	log.SetOutput(logFile)
-	log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.DebugLevel)
+	logrus.SetOutput(logFile)
+	logrus.SetFormatter(&log.CustomFieldJSONFormatter{
+		Pid: os.Getpid(),
+	})
+	logrus.SetLevel(logrus.DebugLevel)
 }
 
 func main() {
@@ -30,7 +33,7 @@ func main() {
 		Listers: getListers(),
 	})
 	if nil != err {
-		log.Panic(err)
+		logrus.Panic(err)
 		panic(err)
 	}
 }
@@ -44,7 +47,7 @@ func getListers() []connector.Lister {
 func getCache() cache.Cache {
 	c, err := cache.NewFileCache()
 	if nil != err {
-		log.Panic(err)
+		logrus.Panic(err)
 		panic(err)
 	}
 	c = &cache.FileCache{

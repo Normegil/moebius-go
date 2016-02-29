@@ -22,6 +22,8 @@ type Manga struct {
 	Status MangaStatus
 }
 
+func (manga Manga) String() string { return manga.Title }
+
 // ByTitle compare mangas by their titles for sorting purpose
 type ByTitle []Manga
 
